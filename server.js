@@ -67,6 +67,8 @@ app.get('*', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Sound & Stage Media server is live and running on port ${PORT}`);
   
-  // Trigger an initial fetch immediately on startup
-  fetchAndStoreNews(db);
+  // Trigger initial fetch if you have it here
+  if (typeof fetchAndStoreNews === 'function') {
+    fetchAndStoreNews(db);
+  }
 });
