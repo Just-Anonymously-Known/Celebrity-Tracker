@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Breaking News | Sound & Stage Media</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- Top Global Navigation Bar -->
+  <nav class="top-nav">
+    <div class="nav-container">
+      <span class="logo">SOUND & STAGE <span>MEDIA</span></span>
+      <div class="nav-links">
+        <a href="index.html">Biography</a>
+        <a href="news.html" class="active">Breaking News</a>
+        <a href="gallery.html">Video & Gallery</a>
+        <a href="contact.html">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero-spotlight">
+    <div class="hero-content">
+      <span class="hero-tag">Live Global & Artist Feeds</span>
+      <h1>Breaking News & Industry Coverage</h1>
+      <p>Real-time tracking of artist spotlights, chart-topping releases, and global music industry headlines.</p>
+    </div>
+  </header>
+
+  <main class="portal-main">
+    <section id="news" class="section-block">
+      <div class="section-header">
+        <h2>Live Global & Artist Feeds</h2>
+        <span id="article-count" class="live-indicator">● Live Sync Active</span>
+      </div>
+
+      <div class="news-filter-bar">
+        <button class="filter-btn active" onclick="filterNews('all')">All Stories</button>
+        <button class="filter-btn" onclick="filterNews('Artist Spotlight')">Artist Spotlight</button>
+        <button class="filter-btn" onclick="filterNews('Music Press')">Music Press</button>
+        <button class="filter-btn" onclick="filterNews('Industry News')">Industry News</button>
+        <button class="filter-btn" onclick="filterNews('Hall of Fame')">Hall of Fame</button>
+      </div>
+
+      <div class="news-grid" id="news-container">
+        <div class="loading-state">Loading advanced media stream from database...</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Shared Footer -->
+  <footer id="contact" class="portal-footer-enhanced">
+    <div class="footer-container">
+      <div class="footer-col">
+        <h3>SOUND & STAGE MEDIA</h3>
+        <p>Premier global intelligence hub tracking milestones, music news, and archival media.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Direct Contacts & Management</h4>
+        <ul class="contact-list">
+          <li><i class="fa-solid fa-envelope"></i> <a href="mailto:hellohello9013@gmail.com">hellohello9013@gmail.com</a></li>
+          <li>
+            <i class="fa-solid fa-comment-sms"></i>
+            <a href="https://signal.me/#p/+15012324970" target="_blank" rel="noopener noreferrer">
+              +1 501-232-4970 (Signal Messenger)
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Official Socials & Profiles</h4>
+        <div class="social-icons">
+          <a href="https://instagram.com/sherylcrow" target="_blank" rel="noopener noreferrer" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://www.youtube.com/@Sherylcrow" target="_blank" rel="noopener noreferrer" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          <a href="https://open.spotify.com/artist/6PXRk76xvQrU3aVp56f5L8" target="_blank" rel="noopener noreferrer" title="Spotify"><i class="fa-brands fa-spotify"></i></a>
+          <a href="https://www.billboard.com/music/music-news/sheryl-crow-hollywood-bowl-power-outage-concert-review-6656775/" target="_blank" rel="noopener noreferrer" title="Billboard Review"><i class="fa-solid fa-newspaper"></i></a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Sound & Stage Media. Widespread Music Intelligence & Artist Tracker. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    let allArticles = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const container = document.getElementById('news-container');
+      const countBadge = document.getElementById('article-count');
+
+      try {
+        const response = await fetch('/api/news');
+        if (!response.ok) throw new Error('Network response failed');
+
+        allArticles = await response.json();
+
+        if (allArticles.length === 0) {
+          container.innerHTML = '<p>No records found in database.</p>';
+          return;
+        }
+
+        countBadge.textContent = `● Live (${allArticles.length} Stories)`;
+        renderArticles(allArticles);
+      } catch (err) {
+        console.error("Error loading news feed:", err);
+        container.innerHTML = '<p class="error">Could not connect to backend server.</p>';
+      }
+    });
+
+    function renderArticles(articles) {
+      const container = document.getElementById('news-container');
+
+      if (articles.length === 0) {
+        container.innerHTML = '<p>No stories found for this category.</p>';
+        return;
+      }
+
+      container.innerHTML = articles.map(article => `
+        <article class="media-card">
+          <div class="card-image-wrapper">
+            <img src="${article.imageUrl}" alt="News thumbnail" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80'">
+            <span class="category-pill">${article.category || 'General News'}</span>
+          </div>
+          <div class="card-body">
+            <div class="card-meta">
+              <span>${article.source}</span>
+              <span>${new Date(article.publishedAt).toLocaleDateString()}</span>
+            </div>
+            <h3>
+              <a href="${article.url}" target="_blank" rel="noopener noreferrer">
+                ${article.title}
+              </a>
+            </h3>
+            <p>${article.summary}</p>
+            <a href="${article.url}" target="_blank" rel="noopener noreferrer" class="read-link">Full Story &rarr;</a>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function filterNews(category) {
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      if (event && event.target) {
+        event.target.classList.add('active');
+      }
+
+      if (category === 'all') {
+        renderArticles(allArticles);
+      } else {
+        const filtered = allArticles.filter(art =>
+          art.category && art.category.toLowerCase().trim() === category.toLowerCase().trim()
+        );
+        renderArticles(filtered);
+      }
+    }
+  </script>
+</body>
+</html>
